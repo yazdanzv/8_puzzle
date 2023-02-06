@@ -1,10 +1,7 @@
-import copy
-
-
 class Node:
     puzzle: list
 
-    def __init__(self, puzzle: list, parent: list, depth: int):
+    def __init__(self, puzzle: list, parent: list = None, depth: int = None):
         self.puzzle: list = puzzle
         self.depth = depth
         self.children: list = []
