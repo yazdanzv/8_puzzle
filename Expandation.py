@@ -78,17 +78,26 @@ class Expand:
 
     def find_children_puzzles(self, node: Node, possible_actions):
         new_puzzles = []
+        print('possible actions')
+        print(possible_actions)
         i, j = self.find_index(node, "0")
         index_of_blank = self.find_index_from_co(node, i, j)
         for action in possible_actions:
             puzzle_copy = copy.deepcopy(node.puzzle)
+            print('puzzle copy')
+            print(puzzle_copy)
             if action == 'Up':
                 index = self.find_index_from_co(node, i - 1, j)
                 puzzle_copy[index], puzzle_copy[index_of_blank] = puzzle_copy[index_of_blank], puzzle_copy[index]
                 new_puzzles.append(puzzle_copy)
             elif action == 'Down':
+                print('down')
                 index = self.find_index_from_co(node, i + 1, j)
+                print('index')
+                print(index)
                 puzzle_copy[index], puzzle_copy[index_of_blank] = puzzle_copy[index_of_blank], puzzle_copy[index]
+                print('new puzzle copy')
+                print(puzzle_copy)
                 new_puzzles.append(puzzle_copy)
             elif action == 'Left':
                 index = self.find_index_from_co(node, i, j - 1)
@@ -100,6 +109,8 @@ class Expand:
                 new_puzzles.append(puzzle_copy)
             else:
                 raise Exception('No such Action!!!')
+        print('new puzzles list')
+        print(new_puzzles)
         return new_puzzles
 
     def find_children(self, node: Node):
@@ -112,6 +123,8 @@ class Expand:
     def update_queue(self, node):
         self.find_children(node)
         self.queue.extend(node.children)
+        print('queue')
+        
 
     @staticmethod
     def show_path(node: Node):
@@ -125,15 +138,26 @@ class Expand:
             print(i)
 
     def solve(self):
+        print('start')
         self.find_children(self.start_node)
+        print('here')
+        print(self.start_node.children)
         self.update_queue(self.start_node)
+        print('here 2 ')
         max_node: Node = self.find_max()
+        print("max node :")
+        print(max_node)
         self.queue.remove(max_node)
         while True:
+            print('while started')
+            print(max_node.puzzle)
+            print()
+            print(self.goal.puzzle)
             if max_node.puzzle == self.goal.puzzle:
                 self.show_path(max_node)
                 break
             else:
+                print('else entered')
                 self.find_children(max_node)
                 self.update_queue(max_node)
                 max_node: Node = self.find_max()
