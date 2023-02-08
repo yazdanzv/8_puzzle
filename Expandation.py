@@ -10,7 +10,7 @@ class Expand:
         self.queue = []
         self.goal = goal
 
-    def find_index(self, node: Node, num: str) -> object:
+    def find_index(self, node: Node, num: str):
         index = node.puzzle.find(num)
         i = index // 3
         j = index - i * 3
@@ -58,14 +58,14 @@ class Expand:
         index = i * 3 + j
         return index
 
-    def find_max(self):
-        max = self.f(self.queue[0])
-        max_node = self.queue[0]
+    def find_min(self):
+        min = self.f(self.queue[0])
+        min_node = self.queue[0]
         for node in self.queue:
-            if max < self.f(node):
-                max = self.f(node)
-                max_node = node
-        return max_node
+            if min > self.f(node):
+                min = self.f(node)
+                min_node = node
+        return min_node
 
     def get_possible_action(self, node: Node):
         i, j = self.find_index(node, "0")
@@ -78,26 +78,17 @@ class Expand:
 
     def find_children_puzzles(self, node: Node, possible_actions):
         new_puzzles = []
-        print('possible actions')
-        print(possible_actions)
         i, j = self.find_index(node, "0")
         index_of_blank = self.find_index_from_co(node, i, j)
         for action in possible_actions:
             puzzle_copy = copy.deepcopy(node.puzzle)
-            print('puzzle copy')
-            print(puzzle_copy)
             if action == 'Up':
                 index = self.find_index_from_co(node, i - 1, j)
                 puzzle_copy[index], puzzle_copy[index_of_blank] = puzzle_copy[index_of_blank], puzzle_copy[index]
                 new_puzzles.append(puzzle_copy)
             elif action == 'Down':
-                print('down')
                 index = self.find_index_from_co(node, i + 1, j)
-                print('index')
-                print(index)
                 puzzle_copy[index], puzzle_copy[index_of_blank] = puzzle_copy[index_of_blank], puzzle_copy[index]
-                print('new puzzle copy')
-                print(puzzle_copy)
                 new_puzzles.append(puzzle_copy)
             elif action == 'Left':
                 index = self.find_index_from_co(node, i, j - 1)
@@ -109,56 +100,65 @@ class Expand:
                 new_puzzles.append(puzzle_copy)
             else:
                 raise Exception('No such Action!!!')
-        print('new puzzles list')
-        print(new_puzzles)
         return new_puzzles
+
+    @staticmethod
+    def find_children_puzzle_list(node: Node):
+        children_puzzles = []
+        for child in node.children:
+            if child.puzzle not in children_puzzles:
+                child_puzzle = copy.deepcopy(child.puzzle)
+                children_puzzles.append(child_puzzle)
+        return children_puzzles
+
+    def find_queue_puzzle_list(self):
+        queue_puzzle_list = []
+        for object in self.queue:
+            object_puzzle_copy = copy.deepcopy(object.puzzle)
+            if object_puzzle_copy not in queue_puzzle_list:
+                queue_puzzle_list.append(object_puzzle_copy)
+        return queue_puzzle_list
 
     def find_children(self, node: Node):
         possible_actions = self.get_possible_action(node)
         children_puzzles = self.find_children_puzzles(node, possible_actions)
         for child_puzzle in children_puzzles:
             child = Node(child_puzzle, node, node.depth + 1)
-            node.children.append(child)  # Not sure
+            children_puzzles = self.find_children_puzzle_list(node)
+            if child.puzzle not in children_puzzles:
+                child_copy = copy.deepcopy(child)
+                node.children.append(child_copy)
 
     def update_queue(self, node):
         self.find_children(node)
-        self.queue.extend(node.children)
-        print('queue')
-        
+        queue_list = self.find_queue_puzzle_list()
+        len1 = len(self.queue)
+        for child in node.children:
+            if child.puzzle not in queue_list:
+                self.queue.append(child)
 
     @staticmethod
     def show_path(node: Node):
-        node_copy = copy.deepcopy(node)
-        ans = [node_copy]
-        while node.parent is not None:
-            ans.append(node_copy.parent)
-            node_copy = copy.deepcopy(node_copy.parent)
-        ans = ans.reverse()
+        node_temp = node
+        ans = [node_temp]
+        while node_temp.parent is not None:
+            ans.append(node_temp.parent)
+            node_temp = node_temp.parent
+        ans.reverse()
         for i in ans:
             print(i)
 
     def solve(self):
-        print('start')
         self.find_children(self.start_node)
-        print('here')
-        print(self.start_node.children)
         self.update_queue(self.start_node)
-        print('here 2 ')
-        max_node: Node = self.find_max()
-        print("max node :")
-        print(max_node)
-        self.queue.remove(max_node)
+        max_node: Node = self.find_min()
         while True:
-            print('while started')
-            print(max_node.puzzle)
-            print()
-            print(self.goal.puzzle)
-            if max_node.puzzle == self.goal.puzzle:
+            if max_node == self.goal:
                 self.show_path(max_node)
                 break
             else:
                 print('else entered')
+                self.queue.remove(max_node)
                 self.find_children(max_node)
                 self.update_queue(max_node)
-                max_node: Node = self.find_max()
-                self.update_queue(max_node)
+                max_node: Node = self.find_min()

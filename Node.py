@@ -19,5 +19,18 @@ class Node:
     def get_puzzle(self):
         return self.puzzle
 
+    def __eq__(self, other):
+        if self.puzzle == other.puzzle:
+            return True
+        else:
+            return False
+
+    def __str__(self):
+        ans = ""
+        for i in range(0, len(self.puzzle), 3):
+            ans += (self.puzzle[i] + " " + self.puzzle[i+1] + " " + self.puzzle[i+2] + "\n")
+        return ans
+
+
 
 
