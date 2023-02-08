@@ -2,7 +2,7 @@ from Node import Node
 import copy
 
 
-class Expand:
+class Expand_AStar:
 
     def __init__(self, node: Node, goal: Node):
         self.start_node: Node = node
@@ -157,7 +157,6 @@ class Expand:
                 self.show_path(max_node)
                 break
             else:
-                print('else entered')
                 self.queue.remove(max_node)
                 self.find_children(max_node)
                 self.update_queue(max_node)
